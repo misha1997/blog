@@ -4,26 +4,16 @@
             <div class="row">
                 <div class="col-md-8">
                     <br>
-                    <div class="card mb-4" v-for="article in articles" :key="article.post_id">
+                    <div class="card mb-4">
                         <img class="card-img-top" :src="article.img">
                         <div class="card-body">
                             <h2 class="card-title">{{ article.title }}</h2>
                             <p class="card-text">{{ article.text }}</p>
-                            <a :href="article.category.url+'/'+article.post_id" class="btn btn-primary">Читати далі &rarr;</a>
                         </div>
                         <div class="card-footer text-muted">
                             Опубліковано {{ article.created_at }} | Категорія <a :href="article.category.url">{{ article.category.name }}</a>
                         </div>
                     </div>
-
-                    <ul class="pagination justify-content-center mb-4">
-                        <li class="page-item">
-                            <a class="page-link" href="#">&larr; Older</a>
-                        </li>
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#">Newer &rarr;</a>
-                        </li>
-                    </ul>
                 </div>
 
             <div class="col-md-4">
@@ -73,7 +63,7 @@
     export default {
         data() {
             return {
-                articles: [],
+                article: {},
                 categories: [],
             }
         },
@@ -83,9 +73,9 @@
         },
         methods: {
             getArticles() {
-                axios.get('/api/articles')
+                axios.get('/api/article/'+this.$route.params.id)
                 .then((response) => {
-                    this.articles = response.data;
+                    this.article = response.data;
                 })
             },
             getCategories() {
