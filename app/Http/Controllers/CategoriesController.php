@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Transliterate;
 use App\Categories;
+use App\Article;
 
 class CategoriesController extends Controller
 {
@@ -29,5 +30,10 @@ class CategoriesController extends Controller
     function delete($id) {
         Categories::find($id)->delete();
         return response('ok', 200);
+    }
+    function getCategoryArticle($name) {
+        $category = Categories::where('url', $name)->first();
+        $data = Article::with('category')->where('category_id', $category->category_id)->get();
+        return response()->json($data);
     }
 }

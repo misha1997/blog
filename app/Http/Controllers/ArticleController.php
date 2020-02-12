@@ -16,7 +16,7 @@ class ArticleController extends Controller
     }
 
     function getId($id) {
-        $data = Article::find($id);
+        $data = Article::with('category', 'comments')->find($id);
         return response()->json($data);
     }
 

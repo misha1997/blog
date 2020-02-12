@@ -4,55 +4,39 @@
             <div class="row">
                 <div class="col-md-8">
                     <br>
-                    <div class="card mb-4">
+                    <div class="card mb-4" v-for="article in filteredList" :key="article.post_id">
                         <img class="card-img-top" :src="article.img">
                         <div class="card-body">
                             <h2 class="card-title">{{ article.title }}</h2>
                             <p class="card-text">{{ article.text }}</p>
+                            <router-link class="btn btn-primary" :to="{ name: 'article', params: {id: article.post_id, category: article.category.url}}">Читати далі &rarr;</router-link>
                         </div>
                         <div class="card-footer text-muted">
-                            Опубліковано {{ article.created_at }} | Категорія <a :href="article.category.url">{{ article.category.name }}</a>
+                            Опубліковано {{ article.created_at }} | Категорія <router-link :to="{ name: 'category', params: { name: article.category.url } }">{{ article.category.name }}</router-link>
                         </div>
                     </div>
                 </div>
 
-            <div class="col-md-4">
-                <!-- Search Widget -->
-                <div class="card my-4">
-                <h5 class="card-header">Пошук</h5>
-                <div class="card-body">
-                    <div class="input-group">
-                    <input type="text" class="form-control">
-                    <span class="input-group-btn">
-                        <button class="btn btn-secondary" type="button">Пошук</button>
-                    </span>
+                <div class="col-md-4">
+                    <div class="card my-4">
+                        <h5 class="card-header">Пошук</h5>
+                        <div class="card-body">
+                            <div class="input-group">
+                                <input v-model="search" type="text" class="form-control">
+                            </div>
+                        </div>
                     </div>
-                </div>
-                </div>
 
-                <!-- Categories Widget -->
-                <div class="card my-4">
-                <h5 class="card-header">Категорії</h5>
-                <div class="card-body">
-                    <div class="row">
-                    <div class="col-lg-6">
-                        <ul class="list-unstyled mb-0">
-                            <li v-for="category in categories" :key="category.category_id">
-                                <a :href="category.url">{{ category.name }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    </div>
-                </div>
-                </div>
-                <div class="card my-4">
-                    <h5 class="card-header">Теги</h5>
-                    <div class="card-body">
+                    <Categories/>
 
-                    </div>
-                </div>
+                    <div class="card my-4">
+                        <h5 class="card-header">Теги</h5>
+                        <div class="card-body">
 
-            </div>
+                        </div>
+                    </div>
+
+                </div>
 
             </div>
         </div>
@@ -60,30 +44,36 @@
 </template>
 
 <script>
+
+    import Categories from './includes/CategoriesComponent.vue'
+
     export default {
+        components: {
+            Categories
+        },
         data() {
             return {
-                article: {},
-                categories: [],
+                articles: [],
+                search: ''
             }
         },
         created() {
             this.getArticles();
-            this.getCategories();
+        },
+        computed: {
+            filteredList() {
+                return this.articles.filter(article => {
+                    return article.title.toLowerCase().includes(this.search.toLowerCase())
+                })
+            },
         },
         methods: {
             getArticles() {
-                axios.get('/api/article/'+this.$route.params.id)
+                axios.get('/api/category/'+this.$route.params.name)
                 .then((response) => {
-                    this.article = response.data;
+                    this.articles = response.data;
                 })
-            },
-            getCategories() {
-                axios.get('/api/categories')
-                .then((response) => {
-                    this.categories = response.data;
-                })
-            },
+            }
         }
     }
 </script>

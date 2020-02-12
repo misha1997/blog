@@ -11,7 +11,36 @@
                             <p class="card-text">{{ article.text }}</p>
                         </div>
                         <div class="card-footer text-muted">
-                            Опубліковано {{ article.created_at }} | Категорія <a :href="article.category.url">{{ article.category.name }}</a>
+                            Опубліковано {{ article.created_at }} | Категорія <router-link :to="{ name: 'category', params: { name: article.category.url } }">{{ article.category.name }}</router-link>
+                        </div>
+                    </div>
+
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h2 class="card-title">Коментарі</h2>
+                            <hr>
+                            <div class="form-group">
+                                <label>Ваше ім'я</label>
+                                <input type="text" v-model="comment.user_name" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Ваш Email</label>
+                                <input type="email" v-model="comment.user_email" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Коментар</label>
+                                <textarea v-model="comment.text" class="form-control" rows="3"></textarea>
+                            </div>
+                            <button :disabled="comment.user_name == '' || comment.user_email == '' || comment.text == ''" type="button" @click="postComment" class="btn btn-primary">Додати коментар</button>
+                            <hr>
+                            <div class="card mt-4" v-for="comment in article.comments" :key="comment.comment_id">
+                                <div class="card-header text-muted">
+                                    <b>{{ comment.user_name }}</b> ({{ comment.user_email }}) додано {{ comment.created_at }}
+                                </div>
+                                <div class="card-body">
+                                    {{ comment.text }}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -30,21 +59,8 @@
                 </div>
                 </div>
 
-                <!-- Categories Widget -->
-                <div class="card my-4">
-                <h5 class="card-header">Категорії</h5>
-                <div class="card-body">
-                    <div class="row">
-                    <div class="col-lg-6">
-                        <ul class="list-unstyled mb-0">
-                            <li v-for="category in categories" :key="category.category_id">
-                                <a :href="category.url">{{ category.name }}</a>
-                            </li>
-                        </ul>
-                    </div>
-                    </div>
-                </div>
-                </div>
+                <Categories/>
+
                 <div class="card my-4">
                     <h5 class="card-header">Теги</h5>
                     <div class="card-body">
@@ -60,16 +76,34 @@
 </template>
 
 <script>
+    import Categories from './includes/CategoriesComponent.vue'
     export default {
+        components: {
+            Categories
+        },
         data() {
             return {
-                article: {},
-                categories: [],
+                article: {
+                    title: '',
+                    text: '',
+                    img: '',
+                    created_at: '',
+                    category: {
+                        name: '',
+                        url: ''
+                    },
+                    comments: [],
+                },
+                comment: {
+                    user_name: '',
+                    user_email: '',
+                    text: '',
+                    post_id: this.$route.params.id
+                }
             }
         },
         created() {
             this.getArticles();
-            this.getCategories();
         },
         methods: {
             getArticles() {
@@ -78,12 +112,15 @@
                     this.article = response.data;
                 })
             },
-            getCategories() {
-                axios.get('/api/categories')
+            postComment() {
+                axios.post('/api/comments', this.comment)
                 .then((response) => {
-                    this.categories = response.data;
+                    this.article.comments.push(response.data);
                 })
-            },
+            }
         }
     }
 </script>
+<style lang="css" scoped>
+
+</style>

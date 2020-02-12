@@ -20,4 +20,9 @@ class Article extends Model
     {
         return $this->belongsTo('App\Categories', 'category_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany('App\Comments', 'post_id');
+    }
 }

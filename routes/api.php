@@ -16,5 +16,8 @@ Route::get('article/{id}',  'ArticleController@getId');
 Route::post('article',  'ArticleController@create');
 Route::post('article/{id}',  'ArticleController@edit');
 Route::delete('article/{id}',  'ArticleController@delete');
-
 Route::get('category/{name}',  'CategoriesController@getCategoryArticle');
+
+// Коментарі
+
+Route::post('comments',  'CommentsController@create');

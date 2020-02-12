@@ -57,11 +57,19 @@
                         </ul>
                     </li>
                     <li class="dropdown user-dropdown">
-                       <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> Steve Miller<b class="caret"></b></a>
+                        <a href="/" target="_blank">Сайт</a>
+                    </li>
+                    <li class="dropdown user-dropdown">
+                       <a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="fa fa-user"></i> {{ Auth::user()->email }}<b class="caret"></b></a>
                        <ul class="dropdown-menu">
                            <li><a href="#"><i class="fa fa-user"></i> Профіль</a></li>
                            <li class="divider"></li>
-                           <li><a href="#"><i class="fa fa-power-off"></i> Вихід</a></li>
+                           <li>
+                               <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa fa-power-off"></i> Вихід</a>
+                               <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                   @csrf
+                               </form>
+                            </li>
                        </ul>
                    </li>
                 </ul>

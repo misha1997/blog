@@ -4,6 +4,9 @@ window.Vue = require('vue');
 
 import Router from "vue-router";
 
+import HeaderComponent from './components/includes/HeaderComponent'
+import FooterComponent from './components/includes/FooterComponent'
+
 import HomeComponent from './components/HomeComponent'
 import ArticleComponent from './components/ArticleComponent'
 import ArticleCategoryComponent from './components/ArticleCategoryComponent'
@@ -19,7 +22,7 @@ const router = new Router({
             component: HomeComponent
         },
         {
-            path: '/*/:id',
+            path: '/:category/:id',
             name: 'article',
             component: ArticleComponent
         },
@@ -31,7 +34,15 @@ const router = new Router({
     ]
 });
 
+router.beforeEach((to, from, next) => {
+    next()
+})
+
 const app = new Vue({
     el: '#app',
+    components: {
+        HeaderComponent,
+        FooterComponent
+    },
     router
 });
