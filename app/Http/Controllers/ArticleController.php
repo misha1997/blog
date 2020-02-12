@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Article;
+use App\TagPost;
+use App\Tags;
 
 class ArticleController extends Controller
 {
@@ -15,9 +17,16 @@ class ArticleController extends Controller
         return response()->json($data);
     }
 
+    function getTagArticle($name) {
+        $tag = Tags::where('url', $name)->first();
+        $posts = TagPost::with('post')->where('tag_id', $tag->tag_id)->get();
+        return response()->json($posts);
+    }
+
     function getId($id) {
         $data = Article::with('category', 'comments')->find($id);
-        return response()->json($data);
+        $tags = TagPost::with('tag')->where('post_id', $id)->get();
+        return response()->json(["data" => $data, "tags" => $tags]);
     }
 
     function create(Request $request) {
@@ -27,6 +36,12 @@ class ArticleController extends Controller
         $request['img']->move(public_path().$this->articlesStorage, $name);
         $data['img'] = $name;
         $response = $model->create($data);
+        foreach(json_decode($request->tags) as $key => $tag) {
+            $model = new TagPost;
+            $model->tag_id = intval($tag->tag_id);
+            $model->post_id = $response->post_id;
+            $model->save();
+        }
         return response()->json($response);
     }
 
@@ -41,8 +56,13 @@ class ArticleController extends Controller
         } else {
             $data['img'] = $model->img;
         }
-
         $model->update($data);
+        foreach(json_decode($request->tags) as $key => $tag) {
+            $model = new TagPost;
+            $model->tag_id = intval($tag->tag_id);
+            $model->post_id = $id;
+            $model->save();
+        }
         return response('ok', 200);
     }
 

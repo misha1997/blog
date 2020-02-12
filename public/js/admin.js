@@ -2159,35 +2159,75 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
       categories: [],
-      article: {}
+      article: {},
+      tags: [],
+      isAddTag: true,
+      tag: '',
+      allTags: []
     };
   },
   created: function created() {
     this.getCategories();
     this.getArticle();
+    this.getTags();
+  },
+  computed: {
+    filteredTag: function filteredTag() {
+      var _this = this;
+
+      return this.allTags.filter(function (tag) {
+        return tag.name.toLowerCase().includes(_this.tag.toLowerCase());
+      });
+    }
   },
   methods: {
     getCategories: function getCategories() {
-      var _this = this;
+      var _this2 = this;
 
       axios.get('/api/categories').then(function (response) {
-        _this.categories = response.data;
+        _this2.categories = response.data;
       });
     },
     getArticle: function getArticle() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get('/api/article/' + this.$route.params.id).then(function (response) {
-        console.log(response.data);
-        _this2.article = response.data;
+        response.data.tags.map(function (item) {
+          _this3.tags.push(item.tag);
+        });
+        _this3.article = response.data.data;
+      });
+    },
+    getTags: function getTags() {
+      var _this4 = this;
+
+      axios.get('/api/tags').then(function (response) {
+        _this4.allTags = response.data;
       });
     },
     previewFiles: function previewFiles(event) {
-      var _this3 = this;
+      var _this5 = this;
 
       var input = event.target;
 
@@ -2195,7 +2235,7 @@ __webpack_require__.r(__webpack_exports__);
         var reader = new FileReader();
 
         reader.onload = function (e) {
-          _this3.article.img = e.target.result;
+          _this5.article.img = e.target.result;
         };
 
         reader.readAsDataURL(input.files[0]);
@@ -2207,9 +2247,33 @@ __webpack_require__.r(__webpack_exports__);
       form.append('title', this.article.title);
       form.append('text', this.article.text);
       form.append('img', this.$refs.image.files[0]);
+      form.append('tags', JSON.stringify(this.tags));
       axios.post('/api/article/' + this.$route.params.id, form).then(function (response) {
         console.log(response.data);
       });
+    },
+    addTag: function addTag(index) {
+      var _this6 = this;
+
+      axios.post('/api/tags', {
+        name: this.tag
+      }).then(function (response) {
+        _this6.tags.push(response.data);
+
+        console.log(_this6.tags);
+      });
+    },
+    delTag: function delTag(id, index) {
+      var _this7 = this;
+
+      axios["delete"]('/api/tags/' + id).then(function () {
+        _this7.tags.splice(index, 1);
+      });
+    },
+    setTag: function setTag(tag) {
+      if (this.tags.indexOf(tag) == -1) {
+        this.tags.push(tag);
+      }
     }
   }
 });
@@ -2287,6 +2351,25 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     return {
@@ -2294,15 +2377,29 @@ __webpack_require__.r(__webpack_exports__);
       categories: [],
       category_id: 1,
       title: '',
-      text: ''
+      text: '',
+      isAddTag: true,
+      tag: '',
+      tags: [],
+      allTags: []
     };
   },
   created: function created() {
     this.getCategories();
+    this.getTags();
+  },
+  computed: {
+    filteredTag: function filteredTag() {
+      var _this = this;
+
+      return this.allTags.filter(function (tag) {
+        return tag.name.toLowerCase().includes(_this.tag.toLowerCase());
+      });
+    }
   },
   methods: {
     previewFiles: function previewFiles(event) {
-      var _this = this;
+      var _this2 = this;
 
       var input = event.target;
 
@@ -2310,17 +2407,24 @@ __webpack_require__.r(__webpack_exports__);
         var reader = new FileReader();
 
         reader.onload = function (e) {
-          _this.image = e.target.result;
+          _this2.image = e.target.result;
         };
 
         reader.readAsDataURL(input.files[0]);
       }
     },
     getCategories: function getCategories() {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.get('/api/categories').then(function (response) {
-        _this2.categories = response.data;
+        _this3.categories = response.data;
+      });
+    },
+    getTags: function getTags() {
+      var _this4 = this;
+
+      axios.get('/api/tags').then(function (response) {
+        _this4.allTags = response.data;
       });
     },
     save: function save() {
@@ -2329,9 +2433,33 @@ __webpack_require__.r(__webpack_exports__);
       form.append('title', this.title);
       form.append('text', this.text);
       form.append('img', this.$refs.image.files[0]);
+      form.append('tags', JSON.stringify(this.tags));
       axios.post('/api/article', form).then(function (response) {
         console.log(response.data);
       });
+    },
+    addTag: function addTag(index) {
+      var _this5 = this;
+
+      axios.post('/api/tags', {
+        name: this.tag
+      }).then(function (response) {
+        _this5.tags.push(response.data);
+
+        _this5.tag = '';
+      });
+    },
+    delTag: function delTag(id, index) {
+      var _this6 = this;
+
+      axios["delete"]('/api/tags/' + id).then(function () {
+        _this6.tags.splice(index, 1);
+      });
+    },
+    setTag: function setTag(tag) {
+      if (this.tags.indexOf(tag) == -1) {
+        this.tags.push(tag);
+      }
     }
   }
 });
@@ -6881,7 +7009,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.prewiewImg[data-v-74aca3dc] {\n    width: 300px;\n}\n.prewiewImg img[data-v-74aca3dc] {\n    width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.prewiewImg[data-v-74aca3dc] {\n    width: 300px;\n}\n.prewiewImg img[data-v-74aca3dc] {\n    width: 100%;\n}\n.tag[data-v-74aca3dc] {\n    display: inline;\n    padding: 5px 10px;\n    margin-right: 5px;\n}\n.tag a[data-v-74aca3dc] {\n    color:#fff;\n    text-decoration: none;\n}\n.add-tag[data-v-74aca3dc] {\n    background: blue; \n    padding: 5px 10px;\n    cursor: pointer;\n}\n.delete-tag[data-v-74aca3dc] {\n    margin-left: 5px;\n    cursor: pointer;\n}\n.tag-item[data-v-74aca3dc] {\n    border: 1px solid silver;\n    padding: 10px;\n    width: 200px;\n    margin-top: 5px;\n    border-radius: 5px;\n    cursor: pointer;\n}\n", ""]);
 
 // exports
 
@@ -6900,7 +7028,7 @@ exports = module.exports = __webpack_require__(/*! ../../../../node_modules/css-
 
 
 // module
-exports.push([module.i, "\n.prewiewImg[data-v-8bceb11c] {\n    width: 300px;\n}\n.prewiewImg img[data-v-8bceb11c] {\n    width: 100%;\n}\n", ""]);
+exports.push([module.i, "\n.prewiewImg[data-v-8bceb11c] {\n    width: 300px;\n}\n.prewiewImg img[data-v-8bceb11c] {\n    width: 100%;\n}\n.tag[data-v-8bceb11c] {\n    display: inline;\n    padding: 5px 10px;\n    margin-right: 5px;\n}\n.tag a[data-v-8bceb11c] {\n    color:#fff;\n    text-decoration: none;\n}\n.add-tag[data-v-8bceb11c] {\n    background: blue; \n    padding: 5px 10px;\n    cursor: pointer;\n}\n.delete-tag[data-v-8bceb11c] {\n    margin-left: 5px;\n    cursor: pointer;\n}\n.tag-item[data-v-8bceb11c] {\n    border: 1px solid silver;\n    padding: 10px;\n    width: 200px;\n    margin-top: 5px;\n    border-radius: 5px;\n    cursor: pointer;\n}\n", ""]);
 
 // exports
 
@@ -38866,6 +38994,127 @@ var render = function() {
                     ]),
                     _vm._v(" "),
                     _c(
+                      "div",
+                      [
+                        _c("label", [_vm._v("Теги")]),
+                        _c("br"),
+                        _vm._v(" "),
+                        _vm._l(_vm.tags, function(tag, index) {
+                          return _c(
+                            "div",
+                            { key: tag.tag_id, staticClass: "badge tag" },
+                            [
+                              _c(
+                                "a",
+                                { attrs: { href: tag.url, target: "_blank" } },
+                                [_vm._v("#" + _vm._s(tag.name))]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "span",
+                                {
+                                  staticClass: "delete-tag",
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.delTag(tag.tag_id, index)
+                                    }
+                                  }
+                                },
+                                [_vm._v("X")]
+                              )
+                            ]
+                          )
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "span",
+                          {
+                            staticClass: "badge add-tag",
+                            on: {
+                              click: function($event) {
+                                _vm.isAddTag = !_vm.isAddTag
+                              }
+                            }
+                          },
+                          [_vm._v("Додати тег +")]
+                        ),
+                        _vm._v(" "),
+                        _vm.isAddTag
+                          ? _c("div", { staticClass: "form-group" }, [
+                              _c("br"),
+                              _vm._v(" "),
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.tag,
+                                    expression: "tag"
+                                  }
+                                ],
+                                staticClass: "form-control",
+                                staticStyle: {
+                                  width: "200px",
+                                  float: "left",
+                                  "margin-right": "5px"
+                                },
+                                domProps: { value: _vm.tag },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.tag = $event.target.value
+                                  }
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-default",
+                                  attrs: { type: "button" },
+                                  on: { click: _vm.addTag }
+                                },
+                                [_vm._v("+")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                {
+                                  directives: [
+                                    {
+                                      name: "show",
+                                      rawName: "v-show",
+                                      value: _vm.tag != "",
+                                      expression: "tag != ''"
+                                    }
+                                  ]
+                                },
+                                _vm._l(_vm.filteredTag, function(tag, index) {
+                                  return _c(
+                                    "div",
+                                    {
+                                      key: index,
+                                      staticClass: "tag-item",
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.setTag(tag)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v(_vm._s(tag.name))]
+                                  )
+                                }),
+                                0
+                              )
+                            ])
+                          : _vm._e()
+                      ],
+                      2
+                    ),
+                    _vm._v(" "),
+                    _c(
                       "button",
                       {
                         staticClass: "btn btn-default",
@@ -39067,6 +39316,129 @@ var render = function() {
                           })
                         : _vm._e()
                     ]),
+                    _vm._v(" "),
+                    _c(
+                      "div",
+                      [
+                        _c("label", [_vm._v("Теги")]),
+                        _c("br"),
+                        _vm._v(" "),
+                        _vm._l(_vm.tags, function(tag, index) {
+                          return _c(
+                            "div",
+                            { key: tag.tag_id, staticClass: "badge tag" },
+                            [
+                              _c(
+                                "a",
+                                { attrs: { href: tag.url, target: "_blank" } },
+                                [_vm._v("#" + _vm._s(tag.name))]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "span",
+                                {
+                                  staticClass: "delete-tag",
+                                  on: {
+                                    click: function($event) {
+                                      return _vm.delTag(tag.tag_id, index)
+                                    }
+                                  }
+                                },
+                                [_vm._v("X")]
+                              )
+                            ]
+                          )
+                        }),
+                        _vm._v(" "),
+                        _c(
+                          "span",
+                          {
+                            staticClass: "badge add-tag",
+                            on: {
+                              click: function($event) {
+                                _vm.isAddTag = !_vm.isAddTag
+                              }
+                            }
+                          },
+                          [_vm._v("Додати тег +")]
+                        ),
+                        _vm._v(" "),
+                        _vm.isAddTag
+                          ? _c("div", { staticClass: "form-group" }, [
+                              _c("br"),
+                              _vm._v(" "),
+                              _c("input", {
+                                directives: [
+                                  {
+                                    name: "model",
+                                    rawName: "v-model",
+                                    value: _vm.tag,
+                                    expression: "tag"
+                                  }
+                                ],
+                                staticClass: "form-control",
+                                staticStyle: {
+                                  width: "200px",
+                                  float: "left",
+                                  "margin-right": "5px"
+                                },
+                                domProps: { value: _vm.tag },
+                                on: {
+                                  input: function($event) {
+                                    if ($event.target.composing) {
+                                      return
+                                    }
+                                    _vm.tag = $event.target.value
+                                  }
+                                }
+                              }),
+                              _vm._v(" "),
+                              _c(
+                                "button",
+                                {
+                                  staticClass: "btn btn-default",
+                                  attrs: { type: "button" },
+                                  on: { click: _vm.addTag }
+                                },
+                                [_vm._v("+")]
+                              ),
+                              _vm._v(" "),
+                              _c(
+                                "div",
+                                {
+                                  directives: [
+                                    {
+                                      name: "show",
+                                      rawName: "v-show",
+                                      value: _vm.tag != "",
+                                      expression: "tag != ''"
+                                    }
+                                  ]
+                                },
+                                _vm._l(_vm.filteredTag, function(tag, index) {
+                                  return _c(
+                                    "div",
+                                    {
+                                      key: index,
+                                      staticClass: "tag-item",
+                                      on: {
+                                        click: function($event) {
+                                          return _vm.setTag(tag)
+                                        }
+                                      }
+                                    },
+                                    [_vm._v(_vm._s(tag.name))]
+                                  )
+                                }),
+                                0
+                              )
+                            ])
+                          : _vm._e()
+                      ],
+                      2
+                    ),
+                    _vm._v(" "),
+                    _c("br"),
                     _vm._v(" "),
                     _c(
                       "button",
@@ -54535,7 +54907,7 @@ __webpack_require__.r(__webpack_exports__);
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(/*! D:\ospanel\domains\blog\resources\js\admin.js */"./resources/js/admin.js");
+module.exports = __webpack_require__(/*! E:\ospanel\domains\blog\resources\js\admin.js */"./resources/js/admin.js");
 
 
 /***/ })

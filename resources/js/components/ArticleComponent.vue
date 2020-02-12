@@ -9,6 +9,11 @@
                         <div class="card-body">
                             <h2 class="card-title">{{ article.title }}</h2>
                             <p class="card-text">{{ article.text }}</p>
+                            <div class="form-group">
+                                <p class="form-control-static">
+                                    <span v-for="(tag, index) in tags" :key="index"><a :href="'/tag/'+tag.tag.url">#{{ tag.tag.name }}</a>&nbsp</span>
+                                </p>
+                            </div>
                         </div>
                         <div class="card-footer text-muted">
                             Опубліковано {{ article.created_at }} | Категорія <router-link :to="{ name: 'category', params: { name: article.category.url } }">{{ article.category.name }}</router-link>
@@ -99,7 +104,8 @@
                     user_email: '',
                     text: '',
                     post_id: this.$route.params.id
-                }
+                },
+                tags: []
             }
         },
         created() {
@@ -109,7 +115,8 @@
             getArticles() {
                 axios.get('/api/article/'+this.$route.params.id)
                 .then((response) => {
-                    this.article = response.data;
+                    this.tags = response.data.tags;
+                    this.article = response.data.data;
                 })
             },
             postComment() {

@@ -10,6 +10,7 @@ import FooterComponent from './components/includes/FooterComponent'
 import HomeComponent from './components/HomeComponent'
 import ArticleComponent from './components/ArticleComponent'
 import ArticleCategoryComponent from './components/ArticleCategoryComponent'
+import ArticleTagComponent from './components/ArticleTagComponent'
 
 Vue.use(Router);
 
@@ -20,6 +21,11 @@ const router = new Router({
             path: '/',
             name: 'home',
             component: HomeComponent
+        },
+        {
+            path: '/tag/:name',
+            name: 'tag',
+            component: ArticleTagComponent
         },
         {
             path: '/:category/:id',
