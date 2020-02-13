@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Article;
 use App\TagPost;
 use App\Tags;
+use App\Categories;
 
 class ArticleController extends Controller
 {
@@ -20,6 +21,9 @@ class ArticleController extends Controller
     function getTagArticle($name) {
         $tag = Tags::where('url', $name)->first();
         $posts = TagPost::with('post')->where('tag_id', $tag->tag_id)->get();
+        foreach($posts as $key => $value) {
+            $posts[$key]->post->category = Categories::find($value->post->category_id);
+        }
         return response()->json($posts);
     }
 

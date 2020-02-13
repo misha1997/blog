@@ -56,10 +56,68 @@
                 <div class="col-lg-6">
                     <div class="panel panel-primary">
                         <div class="panel-heading">
-                            <h3 class="panel-title">Теги</h3>
+                            <h3 class="panel-title">Соціальні мережі</h3>
                         </div>
                         <div class="panel-body">
-                            <div id="shieldui-chart4"></div>
+                            <div id="shieldui-chart2">
+                                <div class="row" style="margin-bottom: 10px;" v-for="(social, index) in socials" :key="'social'+index">
+                                    <div class="col-lg-4" style="padding-right: 0">
+                                        <input
+                                            type="text"
+                                            name="social"
+                                            v-model="social.name"
+                                            class="form-control"
+                                            placeholder="Назва"
+                                            :disabled="social.disabled == '' ? social.disabled : true"
+                                        >
+                                    </div>
+                                    <div class="col-lg-4" style="padding-right: 0">
+                                        <input
+                                            type="text"
+                                            name="social"
+                                            v-model="social.url"
+                                            class="form-control"
+                                            placeholder="Посилання"
+                                            :disabled="social.disabled == '' ? social.disabled : true"
+                                        >
+                                    </div>
+                                    <div class="col-lg-1" style="padding-right: 0">
+                                    <label class="input-file">
+                                        <img :src="social.logo == '' ? '/img/default.jpg' : social.logo " :id="'logo_'+index">
+                                        <input :disabled="social.disabled == '' ? social.disabled : true" style="display:none" type="file" class="custom-file-input" @change="preventLogo($event, index)" :name="'logo_'+index" :ref="'logo_'+index" accept="image/*">
+                                    </label>
+                                    </div>
+                                    <div class="col-lg-3" style="text-align: right;">
+                                        <button
+                                            v-if="social !== editing && social.disabled != false"
+                                            type="button"
+                                            class="btn btn-outline-secondary"
+                                            @click='editSocial(index, social)'
+                                        >
+                                            <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                                        </button>
+
+                                        <button
+                                            v-else
+                                            type="button"
+                                            class="btn btn-outline-secondary"
+                                            @click='saveSocial(index, social.social_id)'
+                                        >
+                                            <i class="fa fa-floppy-o" aria-hidden="true"></i>
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-secondary"
+                                            style="margin-left: 5px"
+                                            @click="delSocial(index, social.social_id)"
+                                        >
+                                            <i class="fa fa-trash" aria-hidden="true"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary btn-block mt-2" @click="addSocial()">Додати</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -105,14 +163,26 @@
             return {
                 editing: {},
                 categories: [],
-                articles: []
+                articles: [],
+                socials: []
             }
         },
         created() {
             this.getCategories();
             this.getArticles();
+            this.getSocials();
         },
         methods: {
+            preventLogo(event, index) {
+                var input = event.target;
+                if (input.files && input.files[0]) {
+                    var reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.socials[index].logo = e.target.result;
+                    }
+                    reader.readAsDataURL(input.files[0]);
+                }
+            },
             getCategories() {
                 axios.get('/api/categories')
                 .then((response) => {
@@ -125,15 +195,33 @@
                     this.articles = response.data;
                 })
             },
+            getSocials() {
+                axios.get('/api/socials')
+                .then((response) => {
+                    this.socials = response.data;
+                })
+            },
             addCategory() {
                 this.categories.push({
                     name: '',
                     disabled: false
                 });
             },
+            addSocial() {
+                this.socials.push({
+                    name: '',
+                    logo: '',
+                    url: '',
+                    disabled: false
+                });
+            },
             editCategory(index, category) {
                 this.categories[index].disabled = false;
                 this.editing = category;
+            },
+            editSocial(index, social) {
+                this.socials[index].disabled = false;
+                this.editing = social;
             },
             saveCategory(index, category_id) {
                 if(!category_id) {
@@ -150,6 +238,21 @@
                 this.categories[index].disabled = true;
                 this.editing = {};
             },
+            saveSocial(index, social_id) {
+                if(!social_id) {
+                    axios.post('/api/social', this.socials[index])
+                    .then((response) => {
+                        this.socials[index].social_id = response.data.social_id;
+                    })
+                } else {
+                    axios.post('/api/social/'+social_id, this.socials[index])
+                    .then((response) => {
+                        this.socials[index] = response.data;
+                    })
+                }
+                this.socials[index].disabled = true;
+                this.editing = {};
+            },
             delCategory(index, category_id) {
                 if(category_id) {
                     axios.delete('/api/categories/'+category_id).then(() => {
@@ -157,6 +260,15 @@
                     })
                 } else {
                     this.categories.splice(index, 1);
+                }
+            },
+            delSocial(index, social_id) {
+                if(social_id) {
+                    axios.delete('/api/social/'+social_id).then(() => {
+                        this.socials.splice(index, 1);
+                    })
+                } else {
+                    this.socials.splice(index, 1);
                 }
             },
             delArticle(index, id) {
@@ -170,3 +282,14 @@
         }
     }
 </script>
+
+<style lang="css" scoped>
+    .input-file {
+        cursor: pointer;
+        width: 40px;
+        height: 35px;
+    }
+    .input-file img {
+        width: 100%;
+    }
+</style>

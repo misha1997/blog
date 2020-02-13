@@ -28,3 +28,10 @@ Route::post('comments',  'CommentsController@create');
 Route::get('tags',  'TagController@get');
 Route::post('tags',  'TagController@create');
 Route::delete('tags/{id}',  'TagController@delete');
+
+// Соціальні мережі
+
+Route::get('socials',  'SocialController@get');
+Route::post('social',  'SocialController@create');
+Route::post('social/{id}',  'SocialController@edit');
+Route::delete('social/{id}',  'SocialController@delete');

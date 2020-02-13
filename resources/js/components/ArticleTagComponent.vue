@@ -15,6 +15,7 @@
                             Опубліковано {{ article.created_at }} | Категорія <router-link :to="{ name: 'category', params: { name: article.category.url } }">{{ article.category.name }}</router-link>
                         </div>
                     </div>
+                    <h2 style="text-align:center" v-if="filteredList.length == 0">Нічого не знайдено</h2>
                 </div>
 
                 <div class="col-md-4">
@@ -29,12 +30,7 @@
 
                     <Categories/>
 
-                    <div class="card my-4">
-                        <h5 class="card-header">Теги</h5>
-                        <div class="card-body">
-
-                        </div>
-                    </div>
+                    <Tags/>
 
                 </div>
 
@@ -46,10 +42,12 @@
 <script>
 
     import Categories from './includes/CategoriesComponent.vue'
+    import Tags from './includes/TagsComponent.vue'
 
     export default {
         components: {
-            Categories
+            Categories,
+            Tags
         },
         data() {
             return {
@@ -74,7 +72,6 @@
                     response.data.map(item => {
                         this.articles.push(item.post)
                     })
-                    console.log(this.articles)
                 })
             }
         }

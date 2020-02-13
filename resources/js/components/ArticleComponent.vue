@@ -66,12 +66,7 @@
 
                 <Categories/>
 
-                <div class="card my-4">
-                    <h5 class="card-header">Теги</h5>
-                    <div class="card-body">
-
-                    </div>
-                </div>
+                <Tags/>
 
             </div>
 
@@ -82,9 +77,11 @@
 
 <script>
     import Categories from './includes/CategoriesComponent.vue'
+    import Tags from './includes/TagsComponent.vue'
     export default {
         components: {
-            Categories
+            Categories,
+            Tags
         },
         data() {
             return {
